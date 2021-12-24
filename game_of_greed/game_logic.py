@@ -16,6 +16,7 @@ class GameLogic:
         Dice is a tuple of integers that represent a dice roll
         """
         score_table = {
+            (2, 2, 3, 3, 6, 6): 1500,
             (1, 2, 3, 4, 5, 6): 1500,
             (6, 6, 6): 600,
             (6, 6, 6, 6): 1200,
@@ -47,32 +48,37 @@ class GameLogic:
             (1, 1, 1, 1, 1, 1): 4000,
         }
 
-        # sorted = tuple(list(dice_roll).sort())
         sorted = list(dice_roll)
         sorted.sort()
         sorted_tuple = tuple(sorted)
         if sorted_tuple in score_table:
             return score_table[sorted_tuple]
         else:
-            parsed_input = Counter(dice_roll)
-            # to do: group the same numbers in the tuple
+            parsed_input = Counter(sorted_tuple)
             groups = []
             for i in parsed_input:
                 group = []
                 for j in range(parsed_input[i]):
                     group.append(i)
-                    # [3, 3, 3]
                 groups.append(tuple(group))
             result = 0
             for group in groups:
                 if group in score_table:
                     result += score_table[group]
-                # else:
-                #     result += 0
-            print(result)
             return result
 
 
-# Testing
-input = (3, 3, 3, 2, 2, 2, 2, 1)
-GameLogic.calculate_score(input)
+class Banker:
+    def __init__(self, shelved=0, balance=0):
+        self.shelved = shelved
+        self.balance = balance
+
+    def shelf(self, scores):
+        self.shelved = scores
+
+    def bank(self):
+        self.balance += self.shelved
+        self.shelved = 0
+
+    def clear_shelf(self):
+        self.shelved = 0
