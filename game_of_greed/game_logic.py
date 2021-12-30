@@ -82,3 +82,11 @@ class Banker:
 
     def clear_shelf(self):
         self.shelved = 0
+
+
+# Application should simulate rolling between 1 and 6 dice
+# Application should allow user to set aside dice each roll
+# Application should allow “banking” current score or rolling again.
+# Application should keep track of total score
+# Application should keep track of current round
+# Application should have automated tests to ensure proper operation
