@@ -1,40 +1,50 @@
-from game_of_greed.game_logic import GameLogic
+from game_of_greed.game_logic import GameLogic, Banker
 
 
 class Game:
-    def play(self, roller=None):
+    def play(self, roller=GameLogic.roll_dice):
         print("Welcome to Game of Greed")
         print("(y)es to play or (n)o to decline")
         user_response = input("> ")
         if user_response == "n":
             print("OK. Maybe another time")
         elif user_response == "y":
-            die = GameLogic.roll_dice(6)
-            print("Starting round 1\nRolling 6 dice...")
-            # *** 4 4 5 2 3 1 ***
-            die_string = " ".join([str(i) for i in die])
-            print(f"*** {die_string} ***")
-            balance = 0
-            shelf = 0
-            dice_remaing = 6
-            play_q = input("Enter dice to keep, or (q)uit:\n> ")
-            if play_q == "q":
-                print(f"Thanks for playing. You earned {balance} points")
-            else:
-                score = GameLogic.calculate_score(tuple(int(i) for i in play_q))
-                dice_remaing -= len(play_q)
-                print(
-                    f"You have {score} unbanked points and {dice_remaing} dice remaining"
-                )
+            banker = Banker()
+            round = 1
+            total = 0
+            # round start
+            while True:
+                die = roller(6)
+                print(f"Starting round {round}\nRolling 6 dice...")
+                die_string = " ".join([str(i) for i in die])
+                print(f"*** {die_string} ***")
+                dice_remaing = 6
+                play_q = input("Enter dice to keep, or (q)uit:\n> ")
+                if play_q == "q":
+                    print(f"Thanks for playing. You earned {total} points")
+                    break
+                else:
+                    score = GameLogic.calculate_score(tuple(int(i) for i in play_q))
+                    banker.shelf(score)
+                    dice_remaing -= len(play_q)
+                    print(
+                        f"You have {score} unbanked points and {dice_remaing} dice remaining"
+                    )
+                    roll_bank_quit = input(
+                        "(r)oll again, (b)ank your points or (q)uit:\n> "
+                    )
+                    if roll_bank_quit == "b":
+                        banker.bank()
+                        total += score
+                        print(f"You banked {banker.balance} points in round {round}")
+                        print(f"Total score is {total} points")
+                        round += 1
+                        banker.balance = 0
+                    elif roll_bank_quit == "q":
+                        print(f"Thanks for playing. You earned {total} points")
 
 
-# E         +(r)oll again, (b)ank your points or (q)uit:
-# E         +> b
-# E         +You banked 50 points in round 1
-# E         +Total score is 50 points
-# E         +Starting round 2
-# E         +Rolling 6 dice...
-# E         +*** 6 4 5 2 3 1 ***
-# E         +Enter dice to keep, or (q)uit:
-# E         +> q
-# E         +Thanks for playing. You earned 50 points
+# play the game
+if __name__ == "__main__":
+    game = Game()
+    game.play()
