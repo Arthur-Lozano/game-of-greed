@@ -2,7 +2,9 @@ from game_of_greed.game_logic import GameLogic, Banker
 
 
 class Game:
-    def play(self, roller=GameLogic.roll_dice):
+    def play(self, roller=None):
+        if roller == None:
+            roller = GameLogic.roll_dice
         print("Welcome to Game of Greed")
         print("(y)es to play or (n)o to decline")
         user_response = input("> ")
