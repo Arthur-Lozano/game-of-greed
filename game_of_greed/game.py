@@ -40,8 +40,24 @@ class Game:
                         print(f"Total score is {total} points")
                         round += 1
                         banker.balance = 0
+                    elif roll_bank_quit == "r":
+                        self.roll_again(dice_remaing)
+                        # self.keep_or_q()
                     elif roll_bank_quit == "q":
                         print(f"Thanks for playing. You earned {total} points")
+
+    def roll_again(self, remaining_dice):
+        print(f"Rolling {remaining_dice} dice...")
+        self.roll_die(remaining_dice)
+
+    def roll_die(self, roll):
+        die = GameLogic.roll_dice(roll)
+        die_string = " ".join([str(i) for i in die])
+        print(f"*** {die_string} ***")
+
+    def keep_or_q(self):
+        play_q = input("Enter dice to keep, or (q)uit:\n> ")
+        return play_q
 
 
 # play the game

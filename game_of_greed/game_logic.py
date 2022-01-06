@@ -76,6 +76,22 @@ class GameLogic:
                     result += score_table[group]
             return result
 
+    @staticmethod
+    def get_scorers(dice):
+        all_rolls_score = GameLogic.calculate_score(dice)
+        if all_rolls_score == 0:
+            return tuple()
+        total = []
+
+        for i in range(len(dice)):
+            roll = dice[:i] + dice[i + 1 :]
+            score = GameLogic.calculate_score(roll)
+
+            if score != all_rolls_score:
+                total.append(dice[i])
+
+        return tuple(total)
+
 
 class Banker:
     def __init__(self, shelved=0, balance=0):
