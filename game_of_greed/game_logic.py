@@ -12,61 +12,25 @@ class GameLogic:
 
     @staticmethod
     def calculate_score(dice_roll):
-        """
-        Dice is a tuple of integers that represent a dice roll
-        """
-        score_table = {
-            (1, 1, 2, 2, 3, 3): 1500,
-            (2, 2, 3, 3, 6, 6): 1500,
-            (1, 2, 3, 4, 5, 6): 1500,
-            (6, 6, 6): 600,
-            (6, 6, 6, 6): 1200,
-            (6, 6, 6, 6, 6): 1800,
-            (6, 6, 6, 6, 6, 6): 2400,
-            (5,): 50,
-            (5, 5): 100,
-            (5, 5, 5): 500,
-            (5, 5, 5, 5): 1000,
-            (5, 5, 5, 5, 5): 1500,
-            (5, 5, 5, 5, 5, 5): 2000,
-            (4, 4, 4): 400,
-            (4, 4, 4, 4): 800,
-            (4, 4, 4, 4, 4): 1200,
-            (4, 4, 4, 4, 4, 4): 1600,
-            (3, 3, 3): 300,
-            (3, 3, 3, 3): 600,
-            (3, 3, 3, 3, 3): 900,
-            (3, 3, 3, 3, 3, 3): 1200,
-            (2, 2, 2): 200,
-            (2, 2, 2, 2): 400,
-            (2, 2, 2, 2, 2): 600,
-            (2, 2, 2, 2, 2, 2): 800,
-            (1,): 100,
-            (1, 1): 200,
-            (1, 1, 1): 1000,
-            (1, 1, 1, 1): 2000,
-            (1, 1, 1, 1, 1): 3000,
-            (1, 1, 1, 1, 1, 1): 4000,
-        }
-
-        sorted = list(dice_roll)
-        sorted.sort()
-        sorted_tuple = tuple(sorted)
-        if sorted_tuple in score_table:
-            return score_table[sorted_tuple]
-        else:
-            parsed_input = Counter(sorted_tuple)
-            groups = []
-            for i in parsed_input:
-                group = []
-                for j in range(parsed_input[i]):
-                    group.append(i)
-                groups.append(tuple(group))
-            result = 0
-            for group in groups:
-                if group in score_table:
-                    result += score_table[group]
-            return result
+        grouped_dice = Counter(dice_roll)
+        if len(grouped_dice) == 6:
+            return 1500
+        if len(grouped_dice) == 3:
+            if [grouped_dice[num] for num in grouped_dice] == [2, 2, 2]:
+                return 1500
+        score = 0
+        for num in grouped_dice:
+            if grouped_dice[num] >= 3:
+                if num != 1:
+                    score += 100 * num * (grouped_dice[num] - 2)
+                else:
+                    score += 1000 * num * (grouped_dice[num] - 2)
+            else:
+                if num == 1:
+                    score += 100 * grouped_dice[num]
+                if num == 5:
+                    score += 50 * grouped_dice[num]
+        return score
 
     @staticmethod
     def get_scorers(dice):
@@ -107,3 +71,61 @@ class Banker:
 
     def clear_shelf(self):
         self.shelved = 0
+
+    # @staticmethod
+    # def calculate_score(dice_roll):
+    #     """
+    #     Dice is a tuple of integers that represent a dice roll
+    #     """
+    #     score_table = {
+    #         (1, 1, 2, 2, 3, 3): 1500,
+    #         (2, 2, 3, 3, 6, 6): 1500,
+    #         (1, 2, 3, 4, 5, 6): 1500,
+    #         (6, 6, 6): 600,
+    #         (6, 6, 6, 6): 1200,
+    #         (6, 6, 6, 6, 6): 1800,
+    #         (6, 6, 6, 6, 6, 6): 2400,
+    #         (5,): 50,
+    #         (5, 5): 100,
+    #         (5, 5, 5): 500,
+    #         (5, 5, 5, 5): 1000,
+    #         (5, 5, 5, 5, 5): 1500,
+    #         (5, 5, 5, 5, 5, 5): 2000,
+    #         (4, 4, 4): 400,
+    #         (4, 4, 4, 4): 800,
+    #         (4, 4, 4, 4, 4): 1200,
+    #         (4, 4, 4, 4, 4, 4): 1600,
+    #         (3, 3, 3): 300,
+    #         (3, 3, 3, 3): 600,
+    #         (3, 3, 3, 3, 3): 900,
+    #         (3, 3, 3, 3, 3, 3): 1200,
+    #         (2, 2, 2): 200,
+    #         (2, 2, 2, 2): 400,
+    #         (2, 2, 2, 2, 2): 600,
+    #         (2, 2, 2, 2, 2, 2): 800,
+    #         (1,): 100,
+    #         (1, 1): 200,
+    #         (1, 1, 1): 1000,
+    #         (1, 1, 1, 1): 2000,
+    #         (1, 1, 1, 1, 1): 3000,
+    #         (1, 1, 1, 1, 1, 1): 4000,
+    #     }
+
+    #     sorted = list(dice_roll)
+    #     sorted.sort()
+    #     sorted_tuple = tuple(sorted)
+    #     if sorted_tuple in score_table:
+    #         return score_table[sorted_tuple]
+    #     else:
+    #         parsed_input = Counter(sorted_tuple)
+    #         groups = []
+    #         for i in parsed_input:
+    #             group = []
+    #             for j in range(parsed_input[i]):
+    #                 group.append(i)
+    #             groups.append(tuple(group))
+    #         result = 0
+    #         for group in groups:
+    #             if group in score_table:
+    #                 result += score_table[group]
+    #         return result
