@@ -17,97 +17,79 @@ class Game:
         if user_response == "n":
             print("OK. Maybe another time")
         elif user_response == "y":
-            # banker = Banker()
-            # round = 1
-            # total = 0
-            # new logic
-            self.play_game(roller)
-            # round start
-            # working logic
-            # while True:
-            #     die = roller(6)
-            #     print(f"Starting round {round}\nRolling 6 dice...")
-            #     die_string = " ".join([str(i) for i in die])
-            #     print(f"*** {die_string} ***")
-            #     dice_remaing = 6
-            #     play_q = input("Enter dice to keep, or (q)uit:\n> ")
-            #     if play_q == "q":
-            #         print(f"Thanks for playing. You earned {total} points")
-            #         break
-            #     else:
-            #         score = GameLogic.calculate_score(tuple(int(i) for i in play_q))
-            #         banker.shelf(score)
-            #         dice_remaing -= len(play_q)
-            #         print(
-            #             f"You have {score} unbanked points and {dice_remaing} dice remaining"
-            #         )
-            #         roll_bank_quit = input(
-            #             "(r)oll again, (b)ank your points or (q)uit:\n> "
-            #         )
-            #         if roll_bank_quit == "b":
-            #             banker.bank()
-            #             total += score
-            #             print(f"You banked {banker.balance} points in round {round}")
-            #             print(f"Total score is {total} points")
-            #             round += 1
-            #             banker.balance = 0
-            #         elif roll_bank_quit == "r":
-            #             self.roll_again(roller, dice_remaing)
-            #             self.keep_or_q()
-            #         elif roll_bank_quit == "q":
-            #             print(f"Thanks for playing. You earned {total} points")
+            self.start_round(roller)
 
-    def play_game(self, roller):
-        print(f"Starting round {self.round}\nRolling 6 dice...")
-        self.roll_die(roller, 6)
-        play_q = input("Enter dice to keep, or (q)uit:\n> ")
-        if play_q == "q":
-            self.quit()
-        else:
-            # self.keep_or_q(roller)
-            score = GameLogic.calculate_score(tuple(int(i) for i in play_q))
-            self.banker.shelf(score)
-            self.dice_remaining -= len(play_q)
-            print(
-                f"You have {score} unbanked points and {self.dice_remaining} dice remaining"
-            )
-            roll_bank_quit = input("(r)oll again, (b)ank your points or (q)uit:\n> ")
-            if roll_bank_quit == "r":
-                self.roll_again(roller, self.dice_remaining)
+    def start_round(self, roller):
+        self.dice_remaining = 6
+        print(f"Starting round {self.round}\nRolling {self.dice_remaining} dice...")
+        dice = self.roll_die(roller, self.dice_remaining)
+        self.keep_or_q(roller, dice)
 
-    def quit(self):
-        print(f"Thanks for playing. You earned {self.total} points")
+    def convert_to_dice_string(self, dice):
+        dice_string = " ".join([str(i) for i in dice])
+        print(f"*** {dice_string} ***")
+
+    def roll_die(self, roller, roll):
+        dice = roller(roll)
+        self.convert_to_dice_string(dice)
+        return dice
 
     def roll_again(self, roller, remaining_dice):
         print(f"Rolling {remaining_dice} dice...")
-        self.roll_die(roller, remaining_dice)
-        # play_q = input("Enter dice to keep, or (q)uit:\n> ")
-        # if play_q == "q":
-        #     self.quit()
-        # else:
-        #     pass
-        self.keep_or_q(roller)
+        dice = self.roll_die(roller, remaining_dice)
+        if GameLogic.calculate_score(dice) == 0:
+            print(
+                "****************************************\n**        Zilch!!! Round over         **\n****************************************"
+            )
+            print(f"You banked 0 points in round {self.round}")
+            print(f"Total score is {self.banker.balance} points")
+            self.round += 1
+            self.start_round(roller)
+        else:
+            self.keep_or_q(roller, dice)
 
-    def roll_die(self, roller, roll):
-        die = roller(roll)
-        die_string = " ".join([str(i) for i in die])
-        print(f"*** {die_string} ***")
+    def roll_bank_quit(self, roller):
+        r_b_q = input("(r)oll again, (b)ank your points or (q)uit:\n> ")
+        if self.dice_remaining == 0:
+            self.dice_remaining = 6
+        if r_b_q == "q":
+            self.quit()
+        elif r_b_q == "r":
+            self.roll_again(roller, self.dice_remaining)
+        elif r_b_q == "b":
+            this_round_points = self.banker.shelved
+            self.banker.bank()
+            print(f"You banked {this_round_points} points in round {self.round}")
+            print(f"Total score is {self.banker.balance} points")
+            self.round += 1
+            self.start_round(roller)
 
-    def keep_or_q(self, roller):
+    def keep_or_q(self, roller, dice):
         play_q = input("Enter dice to keep, or (q)uit:\n> ")
+        play_q = play_q.replace(" ", "").strip()
         if play_q == "q":
             self.quit()
         else:
+            tuple_play_q = tuple(int(i) for i in play_q)
             # validate input
-            score = GameLogic.calculate_score(tuple(int(i) for i in play_q))
-            self.banker.shelf(score)
-            self.dice_remaining -= len(play_q)
-            print(
-                f"You have {score} unbanked points and {self.dice_remaining} dice remaining"
-            )
-            # roll_bank_quit = input("(r)oll again, (b)ank your points or (q)uit:\n> ")
-            # if roll_bank_quit == "r":
-            #     self.roll_again(roller, self.dice_remaining)
+            # if the input is valid then calculate the score
+            if GameLogic.validate_keepers(dice, tuple_play_q):
+                score = GameLogic.calculate_score(tuple_play_q)
+                self.banker.shelf(score)
+                self.dice_remaining -= len(play_q)
+                print(
+                    f"You have {self.banker.shelved} unbanked points and {self.dice_remaining} dice remaining"
+                )
+                self.roll_bank_quit(roller)
+            else:
+                print(f"Cheater!!! Or possibly made a typo...")
+                self.convert_to_dice_string(dice)
+                self.keep_or_q(roller, dice)
+
+    def quit(self):
+        print(f"Thanks for playing. You earned {self.banker.balance} points")
+        self.banker.balance = 0
+        self.banker.clear_shelf()
 
 
 # play the game
