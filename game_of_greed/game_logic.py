@@ -3,21 +3,12 @@ from collections import Counter
 
 
 class GameLogic:
-    mock_die = [
-        (4, 4, 5, 2, 3, 1),
-        (4, 2, 6, 4, 6, 5),
-        (6, 4, 5, 2, 3, 1),
-        (3, 2, 5, 4, 3, 3),
-        (5, 2, 3, 2, 1, 4),
-        (6, 6, 5, 4, 2, 1),
-    ]
-
     @staticmethod
     def roll_dice(rolled_dice):
         dice_list = []
         for _ in range(rolled_dice):
             dice_list.append(random.randint(1, 6))
-        return GameLogic.mock_die.pop(0) if GameLogic.mock_die else tuple(dice_list)
+        return tuple(dice_list)
 
     @staticmethod
     def calculate_score(dice_roll):
@@ -25,6 +16,7 @@ class GameLogic:
         Dice is a tuple of integers that represent a dice roll
         """
         score_table = {
+            (1, 1, 2, 2, 3, 3): 1500,
             (2, 2, 3, 3, 6, 6): 1500,
             (1, 2, 3, 4, 5, 6): 1500,
             (6, 6, 6): 600,
@@ -82,15 +74,23 @@ class GameLogic:
         if all_rolls_score == 0:
             return tuple()
         total = []
-
         for i in range(len(dice)):
             roll = dice[:i] + dice[i + 1 :]
             score = GameLogic.calculate_score(roll)
-
             if score != all_rolls_score:
                 total.append(dice[i])
-
         return tuple(total)
+
+    @staticmethod
+    def validate_keepers(roll, keepers):
+        list_possible_keepers = list(GameLogic.get_scorers(roll))
+        list_possible_keepers.sort()
+        list_keepers = list(keepers)
+        list_keepers.sort()
+        if list_keepers == list_possible_keepers:
+            return True
+        else:
+            return False
 
 
 class Banker:
@@ -99,7 +99,7 @@ class Banker:
         self.balance = balance
 
     def shelf(self, scores):
-        self.shelved = scores
+        self.shelved += scores
 
     def bank(self):
         self.balance += self.shelved
