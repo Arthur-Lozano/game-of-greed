@@ -1,5 +1,6 @@
 from game_of_greed.game_logic import GameLogic
 from game_of_greed.banker import Banker
+import sys
 
 
 class Game:
@@ -50,7 +51,8 @@ class Game:
             self.keep_or_q(roller, dice)
 
     def roll_bank_quit(self, roller):
-        r_b_q = input("(r)oll again, (b)ank your points or (q)uit:\n> ")
+        print("(r)oll again, (b)ank your points or (q)uit:")
+        r_b_q = input("> ")
         if self.dice_remaining == 0:
             self.dice_remaining = 6
         if r_b_q == "q":
@@ -70,32 +72,37 @@ class Game:
                 self.round += 1
                 self.start_round(roller)
 
-    def keep_or_q(self, roller, dice):
-        play_q = input("Enter dice to keep, or (q)uit:\n> ")
-        play_q = play_q.replace(" ", "").strip()
-        if play_q == "q":
-            self.quit()
-        else:
-            tuple_play_q = tuple(int(i) for i in play_q)
-            # validate input
-            # if the input is valid then calculate the score
-            if GameLogic.validate_keepers(dice, tuple_play_q):
-                score = GameLogic.calculate_score(tuple_play_q)
-                self.banker.shelf(score)
-                self.dice_remaining -= len(play_q)
-                print(
-                    f"You have {self.banker.shelved} unbanked points and {self.dice_remaining} dice remaining"
-                )
-                self.roll_bank_quit(roller)
+    def validate_input(self, dice):
+        while True:
+            print("Enter dice to keep, or (q)uit:")
+            play_q = input("> ")
+            play_q = play_q.replace(" ", "").strip()
+            if play_q == "q":
+                self.quit()
+                break
             else:
-                print(f"Cheater!!! Or possibly made a typo...")
-                self.convert_to_dice_string(dice)
-                self.keep_or_q(roller, dice)
+                tuple_play_q = tuple(int(i) for i in play_q)
+                if GameLogic.validate_keepers(dice, tuple_play_q):
+                    return tuple_play_q
+                else:
+                    print(f"Cheater!!! Or possibly made a typo...")
+                    self.convert_to_dice_string(dice)
+
+    def keep_or_q(self, roller, dice):
+        validated_dice = self.validate_input(dice)
+        score = GameLogic.calculate_score(validated_dice)
+        self.banker.shelf(score)
+        self.dice_remaining -= len(validated_dice)
+        print(
+            f"You have {self.banker.shelved} unbanked points and {self.dice_remaining} dice remaining"
+        )
+        self.roll_bank_quit(roller)
 
     def quit(self):
         print(f"Thanks for playing. You earned {self.banker.balance} points")
         self.banker.balance = 0
         self.banker.clear_shelf()
+        sys.exit()
 
 
 # play the game
