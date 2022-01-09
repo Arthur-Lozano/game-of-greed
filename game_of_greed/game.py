@@ -1,12 +1,13 @@
-from game_of_greed.game_logic import GameLogic, Banker
+from game_of_greed.game_logic import GameLogic
+from game_of_greed.banker import Banker
 
 
 class Game:
-    roll_dice = GameLogic.roll_dice
-    round = 1
-    dice_remaining = 6
-    total = 0
-    banker = Banker()
+    def __init__(self, num_rounds=None):
+        self.num_rounds = num_rounds
+        self.round = 1
+        self.dice_remaining = 6
+        self.banker = Banker()
 
     def play(self, roller=None):
         if roller == None:
@@ -61,8 +62,13 @@ class Game:
             self.banker.bank()
             print(f"You banked {this_round_points} points in round {self.round}")
             print(f"Total score is {self.banker.balance} points")
-            self.round += 1
-            self.start_round(roller)
+            if self.num_rounds:
+                self.num_rounds -= 1
+                if self.num_rounds == 0:
+                    self.quit()
+            else:
+                self.round += 1
+                self.start_round(roller)
 
     def keep_or_q(self, roller, dice):
         play_q = input("Enter dice to keep, or (q)uit:\n> ")
