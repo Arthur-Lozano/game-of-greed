@@ -7,8 +7,10 @@ class Banker:
         self.shelved += scores
 
     def bank(self):
+        amount_deposited = self.shelved
         self.balance += self.shelved
         self.shelved = 0
+        return amount_deposited
 
     def clear_shelf(self):
         self.shelved = 0
